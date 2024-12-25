@@ -1,6 +1,7 @@
 package org.openpnp.machine.photon;
 
 import org.openpnp.spi.Machine;
+import org.simpleframework.xml.Attribute;
 
 public class PhotonProperties {
     static final String FEEDER_COMMUNICATION_MAX_RETRY = "PhotonFeeder.FeederCommunicationMaxRetry";
@@ -16,7 +17,7 @@ public class PhotonProperties {
     public int getFeederCommunicationMaxRetry() {
         Integer maxRetry = (Integer) machine.getProperty(FEEDER_COMMUNICATION_MAX_RETRY);
 
-        if(maxRetry == null) {
+        if (maxRetry == null) {
             maxRetry = 3;
             setFeederCommunicationMaxRetry(maxRetry);
         }
@@ -31,7 +32,7 @@ public class PhotonProperties {
     public int getMaxFeederAddress() {
         Integer maxFeederAddress = (Integer) machine.getProperty(MAX_FEEDER_ADDRESS);
 
-        if(maxFeederAddress == null) {
+        if (maxFeederAddress == null) {
             maxFeederAddress = 50;
             setMaxFeederAddress(maxFeederAddress);
         }
@@ -46,7 +47,7 @@ public class PhotonProperties {
     public synchronized PhotonFeederSlots getFeederSlots() {
         PhotonFeederSlots feederSlots = (PhotonFeederSlots) machine.getProperty(FEEDER_SLOTS_PROPERTY);
 
-        if(feederSlots == null) {
+        if (feederSlots == null) {
             feederSlots = new PhotonFeederSlots();
             machine.setProperty(FEEDER_SLOTS_PROPERTY, feederSlots);
         }

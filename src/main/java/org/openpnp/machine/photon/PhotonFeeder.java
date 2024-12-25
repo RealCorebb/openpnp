@@ -34,6 +34,12 @@ public class PhotonFeeder extends ReferenceFeeder {
     PhotonProperties photonProperties;
 
     @Attribute(required = false)
+    protected boolean moveBeforeFeed = false;
+
+    @Attribute(required = false)
+    protected boolean feedAfterPick = false;
+
+    @Attribute(required = false)
     protected String hardwareId;
 
     protected Integer slotAddress = null;
@@ -59,6 +65,22 @@ public class PhotonFeeder extends ReferenceFeeder {
                 populatePhotonBus();
             }
         });
+    }
+
+    public boolean isMoveBeforeFeed() {
+        return moveBeforeFeed;
+    }
+
+    public void setMoveBeforeFeed(boolean moveBeforeFeed) {
+        this.moveBeforeFeed = moveBeforeFeed;
+    }
+
+    public boolean isFeedAfterPick() {
+        return feedAfterPick;
+    }
+
+    public void setFeedAfterPick(boolean feedAfterPick) {
+        this.feedAfterPick = feedAfterPick;
     }
 
     public static void setBus(PhotonBusInterface bus) {
@@ -89,20 +111,17 @@ public class PhotonFeeder extends ReferenceFeeder {
             UnconfiguredSlotException, FeederHasNoLocationOffsetException {
         if (slotAddress == null) {
             throw new NoSlotAddressException(
-                    String.format("Photon Feeder with address %s has no address. Is it inserted?", hardwareId)
-            );
+                    String.format("Photon Feeder with address %s has no address. Is it inserted?", hardwareId));
         }
 
         if (getSlot().getLocation() == null) {
             throw new UnconfiguredSlotException(
-                    String.format("The slot at address %s has no location configured.", slotAddress)
-            );
+                    String.format("The slot at address %s has no location configured.", slotAddress));
         }
 
         if (offset == null) {
             throw new FeederHasNoLocationOffsetException(
-                    String.format("Photon Feeder with address %s has no location offset.", hardwareId)
-            );
+                    String.format("Photon Feeder with address %s has no location offset.", hardwareId));
         }
     }
 
@@ -130,8 +149,7 @@ public class PhotonFeeder extends ReferenceFeeder {
                     "Feeder slot has no configured location",
                     "Select the feeder in the Feeders tab and make sure the slot has a set location",
                     Solutions.Severity.Error,
-                    "https://github.com/openpnp/openpnp/wiki/Photon-Feeder#slots-and-feeder-locations"
-            ));
+                    "https://github.com/openpnp/openpnp/wiki/Photon-Feeder#slots-and-feeder-locations"));
         }
 
         if (offset == null) {
@@ -140,8 +158,7 @@ public class PhotonFeeder extends ReferenceFeeder {
                     "Feeder has no configured offset",
                     "Select the feeder in the Feeders tab and make sure the feeder has an offset location from the slot",
                     Solutions.Severity.Error,
-                    "https://github.com/openpnp/openpnp/wiki/Photon-Feeder#slots-and-feeder-locations"
-            ));
+                    "https://github.com/openpnp/openpnp/wiki/Photon-Feeder#slots-and-feeder-locations"));
         }
     }
 
@@ -231,13 +248,13 @@ public class PhotonFeeder extends ReferenceFeeder {
         actuator.setName(ACTUATOR_DATA_NAME);
 
         for (Driver driver : machine.getDrivers()) {
-            if(! (driver instanceof GcodeDriver)) {
+            if (!(driver instanceof GcodeDriver)) {
                 continue;
             }
             GcodeDriver gcodeDriver = (GcodeDriver) driver;
             gcodeDriver.setCommand(actuator, GcodeDriver.CommandType.ACTUATOR_READ_COMMAND, "M485 {Value}");
             gcodeDriver.setCommand(actuator, GcodeDriver.CommandType.ACTUATOR_READ_REGEX, "rs485-reply: (?<Value>.*)");
-            break;  // Only set this on 1 GCodeDriver
+            break; // Only set this on 1 GCodeDriver
         }
 
         try {
@@ -270,13 +287,13 @@ public class PhotonFeeder extends ReferenceFeeder {
             } else if (moveFeedForwardResponse.error == ErrorTypes.UNINITIALIZED_FEEDER) {
                 slotAddress = null;
                 initialized = false;
-                continue;  // We'll initialize it on a retry
+                continue; // We'll initialize it on a retry
             }
 
             int timeToWaitMillis = moveFeedForwardResponse.expectedTimeToFeed;
 
             for (int j = 0; j < 3; j++) {
-                //noinspection BusyWait
+                // noinspection BusyWait
                 Thread.sleep(timeToWaitMillis);
 
                 MoveFeedStatus moveFeedStatus = new MoveFeedStatus(slotAddress);
@@ -313,9 +330,9 @@ public class PhotonFeeder extends ReferenceFeeder {
     public PropertySheet[] getPropertySheets() {
         List<PropertySheet> sheets = new ArrayList<>();
 
-        if (hardwareId != null) {
-            sheets.add(new FeederPropertySheet(this));
-        }
+        // if (hardwareId != null) { //TEMP
+        sheets.add(new FeederPropertySheet(this));
+        // }
 
         sheets.add(new GlobalConfigPropertySheet());
 
@@ -371,8 +388,10 @@ public class PhotonFeeder extends ReferenceFeeder {
     }
 
     /**
-     * The PhotonFeeder assumes you have a physical slot that is numbered 1 - 254. That
-     * value is also used in the protocol as the address of the feeder once the feeder
+     * The PhotonFeeder assumes you have a physical slot that is numbered 1 - 254.
+     * That
+     * value is also used in the protocol as the address of the feeder once the
+     * feeder
      * is initialized.
      *
      * @return The slot address of this feeder or null if it doesn't have one.
@@ -395,7 +414,8 @@ public class PhotonFeeder extends ReferenceFeeder {
         String oldName = this.getName();
 
         if (slotAddress != null) {
-            // Find any other photon feeders and if they have this slot address, set their address to null
+            // Find any other photon feeders and if they have this slot address, set their
+            // address to null
             PhotonFeeder otherFeeder = findBySlotAddress(slotAddress);
             if (otherFeeder != null) {
                 otherFeeder.slotAddress = null;
@@ -538,7 +558,8 @@ public class PhotonFeeder extends ReferenceFeeder {
                 otherFeeder.setHardwareId(response.uuid);
                 otherFeeder.setSlotAddress(address);
 
-                Logger.trace("Found feeder with hardware uuid " + otherFeeder.getHardwareId() + " at address " + otherFeeder.getSlotAddress());
+                Logger.trace("Found feeder with hardware uuid " + otherFeeder.getHardwareId() + " at address "
+                        + otherFeeder.getSlotAddress());
             }
         }
 

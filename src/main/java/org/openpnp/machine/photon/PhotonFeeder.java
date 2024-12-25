@@ -346,8 +346,6 @@ public class PhotonFeeder extends ReferenceFeeder {
         if (isFeedAfterPick()) {
             MoveFeedForward moveFeedForward = new MoveFeedForward(slotAddress, partPitch * 10);
             MoveFeedForward.Response moveFeedForwardResponse = moveFeedForward.send(photonBus);
-            timeToWaitMillis = moveFeedForwardResponse.expectedTimeToFeed;
-
             if (moveFeedForwardResponse == null) {
                 slotAddress = null;
                 initialized = false;
@@ -356,6 +354,7 @@ public class PhotonFeeder extends ReferenceFeeder {
                 slotAddress = null;
                 initialized = false;
             }
+            timeToWaitMillis = moveFeedForwardResponse.expectedTimeToFeed;
             hasBeenFed = true;
         }
     }

@@ -19,6 +19,7 @@ import org.openpnp.model.Configuration;
 import org.openpnp.model.Location;
 import org.openpnp.model.Solutions;
 import org.openpnp.spi.*;
+import org.openpnp.util.MovableUtils;
 import org.pmw.tinylog.Logger;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -267,6 +268,9 @@ public class PhotonFeeder extends ReferenceFeeder {
 
     @Override
     public void feed(Nozzle nozzle) throws Exception {
+        if (isMoveBeforeFeed()) {
+            MovableUtils.moveToLocationAtSafeZ(nozzle, getPickLocation().derive(null, null, Double.NaN, null));
+        }
         for (int i = 0; i <= photonProperties.getFeederCommunicationMaxRetry(); i++) {
             findSlotAddressIfNeeded();
             initializeIfNeeded();
